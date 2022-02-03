@@ -1,8 +1,8 @@
 from formsg.util.webhook import (
-    _parse_signature_header,
     is_signature_valid,
     has_epoch_expired,
 )
+from formsg.util.parser import parse_signature_header
 from formsg.exceptions import WebhookAuthenticateException
 
 
@@ -19,7 +19,7 @@ class Webhook(object):
         * @returns true if the header is verified
         * @throws {WebhookAuthenticateError} If the signature or uri cannot be verified
         """
-        signature_header = _parse_signature_header(header)
+        signature_header = parse_signature_header(header)
         [signature, epoch, submission_id, form_id] = [
             signature_header["v1"],
             signature_header["t"],

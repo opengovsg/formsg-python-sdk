@@ -20,6 +20,6 @@ def parse_signature_header(header: str):
 
 def parse_verification_signature(signature: str):
     parsed_signature = cast(VerificationSignatureSchema, {})
-    parsed_signature = _extract_key_values(signature)
+    parsed_signature = _extract_key_values(signature)  # type: ignore
     parsed_signature["t"] = int(parsed_signature["t"])
     return parsed_signature

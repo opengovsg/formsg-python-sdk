@@ -1,11 +1,13 @@
-from typing import Dict, Union
 from typing_extensions import TypedDict
 import time
+import logging
 import base64
 from nacl.signing import VerifyKey
 
 
 from formsg.exceptions import WebhookAuthenticateException
+
+logger = logging.getLogger(__name__)
 
 SignatureHeader = TypedDict(
     "SignatureHeader",
@@ -13,33 +15,16 @@ SignatureHeader = TypedDict(
 )
 
 
-def _extract_key_values(s: str) -> dict:
-    tokens = s.split(",")
-    d: Dict[str, Union[str, int]] = dict()
-    for token in tokens:
-        k, v = token.split("=", maxsplit=1)
-        d[k] = v
-    return d
-
-
-def _parse_signature_header(header: str):
-    parsed_signature = _extract_key_values(header)
-    parsed_signature["t"] = int(parsed_signature["t"])
-    return parsed_signature
-
-
 def is_signature_valid(
     uri: str, signature_header: SignatureHeader, public_key: str
 ) -> bool:
     """
-    /**
-     * Helper function to construct the basestring and verify the signature of an
-     * incoming request
-     * @param uri incoming request to verify
-     * @param signatureHeader the X-FormSG-Signature header to verify against
-     * @returns true if verification succeeds, false otherwise
-     * @throws {WebhookAuthenticateError} if given signature header is malformed.
-     */
+    Helper function to construct the basestring and verify the signature of an
+    incoming request
+    :param: uri incoming request to verify
+    :param: signatureHeader the X-FormSG-Signature header to verify against
+    :rtype: :class:`bool` true if verification succeeds, false otherwise
+    raises {WebhookAuthenticateError} if given signature header is malformed.
     """
     [signature, epoch, submission_id, form_id] = [
         signature_header["v1"],
@@ -52,7 +37,12 @@ def is_signature_valid(
 
     base_string = f"{uri}.{submission_id}.{form_id}.{epoch}"
     v_key = VerifyKey(base64.b64decode(public_key))
-    return _verify(v_key, base_string, signature)
+    try:
+        _verify(v_key, base_string, signature)
+        return True
+    except Exception as e:
+        logger.error(e)
+        return False
 
 
 def _verify(verify_key: VerifyKey, uri: str, signature: str) -> bytes:

@@ -1,14 +1,14 @@
-.PHONY: all lint test type publish docs
+.PHONY: all lint test type publish docs build
 CMD:=poetry run
 
 lint:
 	$(CMD) black .
 
 type:
-	$(CMD) mypy . --exclude=build/
+	$(CMD) mypy . --exclude=build/ --exclude=example_app
 
 test:
-	$(CMD) pytest
+	python -m pytest tests
 
 build: # build for release
 	python setup.py sdist bdist_wheel

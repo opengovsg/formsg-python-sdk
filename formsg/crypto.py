@@ -78,7 +78,7 @@ class Crypto(object):
                     "Public signing key must be provided when instantiating the Crypto class in order to verify verified content"
                 )
             decrypted_verified_content = decrypt_content(
-                form_secret_key, decrypt_params["verifiedContent"]
+                form_secret_key, decrypt_params["verifiedContent"]  # type: ignore
             )
             if not decrypted_verified_content:
                 raise Exception("Failed to decrypt verified content")
@@ -129,8 +129,9 @@ class Crypto(object):
         decrypted_content_bytes = decrypt_content(
             form_secret_key, decrypt_params["encryptedContent"]
         )
+        if not decrypted_content_bytes:
+            return None
         decrypted_content = json.loads(decrypted_content_bytes.decode("utf-8"))
-        # TODO: raise exception
 
         decrypted_records = {}
         filenames = {}
@@ -139,21 +140,26 @@ class Crypto(object):
                 filenames[response["_id"]] = response["answer"]
 
         field_ids = attachment_records.keys()
-
         if not are_attachment_field_ids_valid(field_ids, filenames):
             return None
 
         # possible improvement: make this parallel (eg. with grequests, request_futures)
-        for field_id in field_ids:
-            resp = requests.get(attachment_records[field_id])
-            data = resp.json()
-            encrypted_file = convert_encrypted_attachment_to_file_content(data)
-            decrypted_file = self.decrypt_file(form_secret_key, encrypted_file)
-            if not decrypted_file:
-                raise AttachmentDecryptionException()
-            decrypted_records[field_id] = {
-                "filename": filenames[field_id],
-                "content": decrypted_file,
-            }
+        try:
+            for field_id in field_ids:
+                resp = requests.get(attachment_records[field_id])
+                data = resp.json()
+                encrypted_file = convert_encrypted_attachment_to_file_content(data)
+                decrypted_file = self.decrypt_file(form_secret_key, encrypted_file)
+                if not decrypted_file:
+                    raise AttachmentDecryptionException()
+                decrypted_records[field_id] = {
+                    "filename": filenames[field_id],
+                    "content": decrypted_file,
+                }
+        except AttachmentDecryptionException:
+            raise
+        except Exception as e:
+            logger.error(e)
+            return None
 
         return {"content": decrypted_content, "attachments": decrypted_records}

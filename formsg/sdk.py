@@ -17,13 +17,12 @@ class FormSdk(object):
 
         self.crypto = Crypto(self.public_key)
 
-    def authenticate(self, private_key: str, header: str, uri: str) -> bool:
-        webhook = Webhook(self.public_key, private_key)
+    def authenticate(self, header: str, uri: str) -> bool:
+        webhook = Webhook(self.public_key)
         return webhook.authenticate(header, uri)
 
     def decrypt(self, form_secret_key: str, decrypt_params: DecryptParams):
         return self.crypto.decrypt(form_secret_key, decrypt_params)
 
-    # TODO
     def decrypt_attachments(self, form_secret_key: str, decrypt_params: DecryptParams):
         return self.crypto.decrypt_attachments(form_secret_key, decrypt_params)

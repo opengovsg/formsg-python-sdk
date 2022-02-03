@@ -7,9 +7,8 @@ from formsg.exceptions import WebhookAuthenticateException
 
 
 class Webhook(object):
-    def __init__(self, public_key, secret_key):
+    def __init__(self, public_key):
         self.public_key = public_key
-        self.secret_key = secret_key
 
     def authenticate(self, header: str, uri: str) -> bool:
         """
@@ -28,9 +27,7 @@ class Webhook(object):
         ]
 
         # verify signature authenticity
-        try:
-            is_signature_valid(uri, signature_header, self.public_key)
-        except:
+        if not is_signature_valid(uri, signature_header, self.public_key):
             raise WebhookAuthenticateException(
                 f"Signature could not be verified for uri={uri} submission_id={submission_id} form_id={form_id} epoch={epoch} signature={signature}"
             )

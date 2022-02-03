@@ -1,4 +1,4 @@
-.PHONY: all lint test type publish
+.PHONY: all lint test type publish docs
 CMD:=poetry run
 
 lint:
@@ -15,3 +15,6 @@ build: # build for release
 
 publish:
 	$(CMD) publish
+
+docs:
+	sphinx-build docs/source docs/build

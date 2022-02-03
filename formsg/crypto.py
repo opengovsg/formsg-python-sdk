@@ -12,7 +12,6 @@ from typing_extensions import TypedDict
 
 import logging
 
-from nacl.exceptions import CryptoError
 from nacl.public import Box, PrivateKey, PublicKey
 import json
 
@@ -62,18 +61,13 @@ class Crypto(object):
         except Exception as e:
             logger.error(e)
             return None
-        try:
-            decrypted_bytes = decrypt_content(
-                form_secret_key, decrypt_params["encryptedContent"]
-            )
-        except CryptoError:
-            logger.error(
-                "Error decrypting, is your form_secret_key correct, or are you on the correct mode (staging/production)?"
-            )
-            return None
-        except Exception as e:
-            logger.error(e)
-            return None
+
+
+        decrypted_bytes = decrypt_content(
+            form_secret_key, decrypt_params["encryptedContent"]
+        )
+        if not decrypted_bytes:
+            raise Exception('Failed to decrypt content')
 
         decrypted_object = json.loads(decrypted_bytes.decode("utf-8"))
         returned_object = {}
@@ -87,7 +81,7 @@ class Crypto(object):
             decrypted_verified_content = decrypt_content(
                 form_secret_key, decrypt_params["verifiedContent"]
             )
-            if not decrypted_verified_content:  # TODO: check if need to try catch above
+            if not decrypted_verified_content:
                 raise Exception("Failed to decrypt verified content")
 
             decrypted_verified_object = verify_signed_message(

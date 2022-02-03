@@ -4,6 +4,7 @@ from typing_extensions import Literal, TypedDict
 import json
 import logging
 
+from nacl.exceptions import CryptoError
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.signing import VerifyKey
 
@@ -94,7 +95,7 @@ DecryptedContent = TypedDict(
 )
 
 
-def verify_signed_message(msg: str, public_key: str) -> Dict[str, Any]:
+def verify_signed_message(msg: bytes, public_key: str) -> Dict[str, Any]:
     """
     helper method to verify a signed message
     :param msg: message to verify
@@ -109,7 +110,9 @@ def verify_signed_message(msg: str, public_key: str) -> Dict[str, Any]:
     return json.loads(opened_message.decode("utf-8"))
 
 
-def decrypt_content(form_private_key: str, encrypted_content: str) -> bytes:
+def decrypt_content(
+    form_private_key: str, encrypted_content: str
+) -> Union[bytes, None]:
     try:
         [submission_public_key, nonce_encrypted] = encrypted_content.split(";")
         [nonce, encrypted] = list(
@@ -119,8 +122,10 @@ def decrypt_content(form_private_key: str, encrypted_content: str) -> bytes:
         public_key = PublicKey(base64.b64decode(submission_public_key))
         box = Box(private_key, public_key)
         return box.decrypt(encrypted, nonce)
-    except Exception as e:
-        logger.error(e)
+    except CryptoError:
+        logger.error(
+            "Error decrypting, is your form_secret_key correct, or are you on the correct mode (staging/production)?"
+        )
         return None
 
 

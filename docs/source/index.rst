@@ -1,5 +1,5 @@
 .. formsg-python-sdk documentation master file, created by
-   sphinx-quickstart on Fri Jan 28 17:00:06 2022.
+   sphinx-quickstart on Fri Jan 28 18:09:51 2022.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 

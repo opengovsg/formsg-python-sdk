@@ -2,6 +2,7 @@
 CMD:=poetry run
 
 lint:
+	$(CMD) isort --profile black formsg
 	$(CMD) black .
 
 type:

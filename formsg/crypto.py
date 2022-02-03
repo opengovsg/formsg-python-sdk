@@ -93,7 +93,7 @@ class Crypto(object):
             decrypted_verified_object = verify_signed_message(
                 decrypted_verified_content, self.signing_public_key
             )
-            returned_object['verified'] = decrypted_verified_object
+            returned_object["verified"] = decrypted_verified_object
 
         return returned_object
 

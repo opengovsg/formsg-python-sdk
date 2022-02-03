@@ -1,4 +1,5 @@
 import base64
+from formsg.schemas.crypto import DecryptParamsSchema
 from formsg.util.crypto import (
     are_attachment_field_ids_valid,
     convert_encrypted_attachment_to_file_content,
@@ -9,6 +10,9 @@ from formsg.exceptions import AttachmentDecryptionException, MissingPublicKeyExc
 from typing import Mapping, Optional
 from typing_extensions import TypedDict
 
+import logging
+
+from nacl.exceptions import CryptoError
 from nacl.public import Box, PrivateKey, PublicKey
 import json
 
@@ -25,6 +29,9 @@ DecryptParams = TypedDict(
         "attachmentDownloadUrls": Optional[EncryptedAttachmentRecords],
     },
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 class Crypto(object):
@@ -45,30 +52,49 @@ class Crypto(object):
     """
 
     def decrypt(self, form_secret_key: str, decrypt_params: DecryptParams):
-        decrypted_bytes = decrypt_content(
-            form_secret_key, decrypt_params["encryptedContent"]
-        )
-        # nacl.exceptions.CryptoError?
+        decrypted_bytes = None
+
+        schema = DecryptParamsSchema()
+        try:
+            schema.load(
+                decrypt_params, unknown="INCLUDE"
+            )  # do not raise exception on unknown/unspecified fields
+        except Exception as e:
+            logger.error(e)
+            return None
+        try:
+            decrypted_bytes = decrypt_content(
+                form_secret_key, decrypt_params["encryptedContent"]
+            )
+        except CryptoError:
+            logger.error(
+                "Error decrypting, is your form_secret_key correct, or are you on the correct mode (staging/production)?"
+            )
+            return None
+        except Exception as e:
+            logger.error(e)
+            return None
 
         decrypted_object = json.loads(decrypted_bytes.decode("utf-8"))
         returned_object = {}
         returned_object["responses"] = decrypted_object
 
-        # do I need to verify?
         if "verifiedContent" in decrypt_params:
             if not self.signing_public_key:
                 raise MissingPublicKeyException(
                     "Public signing key must be provided when instantiating the Crypto class in order to verify verified content"
                 )
             decrypted_verified_content = decrypt_content(
-                form_secret_key, decrypt_content["verifiedContent"]
+                form_secret_key, decrypt_params["verifiedContent"]
             )
-            if not decrypted_verified_content:
+            if not decrypted_verified_content:  # TODO: check if need to try catch above
                 raise Exception("Failed to decrypt verified content")
 
             decrypted_verified_object = verify_signed_message(
                 decrypted_verified_content, self.signing_public_key
             )
+            returned_object['verified'] = decrypted_verified_object
+
         return returned_object
 
     def decrypt_file(self, form_secret_key: str, encrypted_file_content):
@@ -110,7 +136,7 @@ class Crypto(object):
         if not are_attachment_field_ids_valid(field_ids, filenames):
             return None
 
-        # TODO: does this need to be parallel?
+        # possible improvement: make this parallel (eg. with grequests, request_futures)
         for field_id in field_ids:
             resp = requests.get(attachment_records[field_id])
             data = resp.json()
@@ -123,4 +149,4 @@ class Crypto(object):
                 "content": decrypted_file,
             }
 
-        return {"content": decrypt_content, "attachments": decrypted_records}
+        return {"content": decrypted_content, "attachments": decrypted_records}

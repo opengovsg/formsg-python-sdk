@@ -121,7 +121,8 @@ def decrypt_content(
         private_key = PrivateKey(base64.b64decode(form_private_key))
         public_key = PublicKey(base64.b64decode(submission_public_key))
         box = Box(private_key, public_key)
-        return box.decrypt(encrypted, nonce)
+        decrypted = box.decrypt(encrypted, nonce)
+        return decrypted
     except CryptoError:
         logger.error(
             "Error decrypting, is your form_secret_key correct, or are you on the correct mode (staging/production)?"

@@ -7,8 +7,10 @@ from formsg.util.crypto import (
     verify_signed_message,
 )
 from formsg.exceptions import AttachmentDecryptionException, MissingPublicKeyException
-from typing import Mapping, Optional
+from typing import Mapping, Optional, Union
 from typing_extensions import TypedDict
+from nacl.exceptions import CryptoError
+
 
 import logging
 
@@ -62,12 +64,11 @@ class Crypto(object):
             logger.error(e)
             return None
 
-
         decrypted_bytes = decrypt_content(
             form_secret_key, decrypt_params["encryptedContent"]
         )
         if not decrypted_bytes:
-            raise Exception('Failed to decrypt content')
+            raise Exception("Failed to decrypt content")
 
         decrypted_object = json.loads(decrypted_bytes.decode("utf-8"))
         returned_object = {}
@@ -91,19 +92,33 @@ class Crypto(object):
 
         return returned_object
 
-    def decrypt_file(self, form_secret_key: str, encrypted_file_content):
-        """ """
-        # nacl.box.open(box, nonce, theirPublicKey, mySecretKey)
+    def decrypt_file(
+        self, form_secret_key: str, encrypted_file_content
+    ) -> Union[bytes, None]:
+        """
+        Decrypt the given encrypted file content.
+        :param form_secret_key Secret key as a base-64 string
+        :param encrypted_file_content Object returned from encryptFile function
+        :param encrypted_file_content.submissionPublicKey The submission public key as a base-64 string
+        :param encrypted_file_content.nonce The nonce as a base-64 string
+        :param encrypted_file_content.blob The encrypted file as a Blob object
+
+        """
         box = Box(
             PrivateKey(base64.b64decode(form_secret_key)),
             PublicKey(
                 base64.b64decode(encrypted_file_content["submission_public_key"])
             ),
         )
-        return box.decrypt(
-            encrypted_file_content["binary"],
-            base64.b64decode(encrypted_file_content["nonce"]),
-        )
+        try:
+            decrypted = box.decrypt(
+                encrypted_file_content["binary"],
+                base64.b64decode(encrypted_file_content["nonce"]),
+            )
+            return decrypted
+        except CryptoError:
+            logger.error("Error decrypting file")
+            return None
 
     def decrypt_attachments(self, form_secret_key: str, decrypt_params: DecryptParams):
         if "attachmentDownloadUrls" not in decrypt_params:

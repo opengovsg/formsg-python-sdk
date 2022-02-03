@@ -1,4 +1,4 @@
-from formsg.constants import PUBLIC_KEY_STAGING, PUBLIC_KEY_PRODUCTION
+from formsg.constants import PUBLIC_KEY_PRODUCTION, PUBLIC_KEY_STAGING
 from formsg.crypto import Crypto, DecryptParams
 from formsg.webhook import Webhook
 

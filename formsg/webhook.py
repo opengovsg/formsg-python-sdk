@@ -1,9 +1,6 @@
-from formsg.util.webhook import (
-    is_signature_valid,
-    has_epoch_expired,
-)
-from formsg.util.parser import parse_signature_header
 from formsg.exceptions import WebhookAuthenticateException
+from formsg.util.parser import parse_signature_header
+from formsg.util.webhook import has_epoch_expired, is_signature_valid
 
 
 class Webhook(object):

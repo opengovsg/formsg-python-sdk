@@ -1,6 +1,5 @@
 from typing_extensions import TypedDict
 
-
 VerificationAuthenticateOptions = TypedDict(
     "VerificationAuthenticateOptions",
     {

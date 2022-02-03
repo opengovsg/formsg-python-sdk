@@ -1,4 +1,14 @@
 import base64
+import json
+import logging
+from typing import Mapping, Optional, Union
+
+import requests
+from nacl.exceptions import CryptoError
+from nacl.public import Box, PrivateKey, PublicKey
+from typing_extensions import TypedDict
+
+from formsg.exceptions import AttachmentDecryptionException, MissingPublicKeyException
 from formsg.schemas.crypto import DecryptParamsSchema
 from formsg.util.crypto import (
     are_attachment_field_ids_valid,
@@ -6,18 +16,6 @@ from formsg.util.crypto import (
     decrypt_content,
     verify_signed_message,
 )
-from formsg.exceptions import AttachmentDecryptionException, MissingPublicKeyException
-from typing import Mapping, Optional, Union
-from typing_extensions import TypedDict
-from nacl.exceptions import CryptoError
-
-
-import logging
-
-from nacl.public import Box, PrivateKey, PublicKey
-import json
-
-import requests
 
 EncryptedAttachmentRecords = Mapping[str, str]
 

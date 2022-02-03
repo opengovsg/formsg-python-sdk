@@ -1,9 +1,9 @@
-from typing_extensions import TypedDict
-import time
-import logging
 import base64
-from nacl.signing import VerifyKey
+import logging
+import time
 
+from nacl.signing import VerifyKey
+from typing_extensions import TypedDict
 
 from formsg.exceptions import WebhookAuthenticateException
 

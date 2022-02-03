@@ -1,13 +1,12 @@
 import base64
-from typing import Any, Dict, List, Mapping, Optional, Union
-from typing_extensions import Literal, TypedDict
 import json
 import logging
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 from nacl.exceptions import CryptoError
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.signing import VerifyKey
-
+from typing_extensions import Literal, TypedDict
 
 logger = logging.getLogger(__name__)
 

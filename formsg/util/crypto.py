@@ -1,11 +1,14 @@
 import base64
 from typing import Any, Dict, List, Mapping, Optional, Union
 from typing_extensions import Literal, TypedDict
-from black import json
-
+import json
+import logging
 
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.signing import VerifyKey
+
+
+logger = logging.getLogger(__name__)
 
 
 """
@@ -91,27 +94,14 @@ DecryptedContent = TypedDict(
 )
 
 
-"""
-/**
- * Helper method to verify a signed message.
- * @param msg the message to verify
- * @param publicKey the public key to authenticate the signed message with
- * @returns the signed message if successful, else an error will be thrown
- * @throws {Error} if the message cannot be verified
- */
-export const verifySignedMessage = (
-  msg: Uint8Array,
-  publicKey: string
-): Record<string, any> => {
-  const openedMessage = nacl.sign.open(msg, decodeBase64(publicKey))
-  if (!openedMessage)
-    throw new Error('Failed to open signed message with given public key')
-  return JSON.parse(encodeUTF8(openedMessage))
-}
-"""
-
-
 def verify_signed_message(msg: str, public_key: str) -> Dict[str, Any]:
+    """
+    helper method to verify a signed message
+    :param msg: message to verify
+    :param public_key: the public key to authenticate the signed message with
+    :returns the signed message if successful, else an error will be thrown
+    raises Exception if mesasage cannot be verified
+    """
     verify_key = VerifyKey(base64.b64decode(public_key))
     opened_message = verify_key.verify(msg)
     if not opened_message:
@@ -120,15 +110,18 @@ def verify_signed_message(msg: str, public_key: str) -> Dict[str, Any]:
 
 
 def decrypt_content(form_private_key: str, encrypted_content: str) -> bytes:
-    [submission_public_key, nonce_encrypted] = encrypted_content.split(";")
-    [nonce, encrypted] = list(
-        map(lambda x: base64.b64decode(x), nonce_encrypted.split(":"))
-    )
-    private_key = PrivateKey(base64.b64decode(form_private_key))
-    public_key = PublicKey(base64.b64decode(submission_public_key))
-    box = Box(private_key, public_key)
-    # TODO: check if nonce needs to be b64
-    return box.decrypt(encrypted, nonce)
+    try:
+        [submission_public_key, nonce_encrypted] = encrypted_content.split(";")
+        [nonce, encrypted] = list(
+            map(lambda x: base64.b64decode(x), nonce_encrypted.split(":"))
+        )
+        private_key = PrivateKey(base64.b64decode(form_private_key))
+        public_key = PublicKey(base64.b64decode(submission_public_key))
+        box = Box(private_key, public_key)
+        return box.decrypt(encrypted, nonce)
+    except Exception as e:
+        logger.error(e)
+        return None
 
 
 def retrieve_attachment_filenames(decrypted_content: FieldType):
@@ -142,7 +135,7 @@ def are_attachment_field_ids_valid(
 
 
 def convert_encrypted_attachment_to_file_content(encrypted_attachment):
-    print(
+    logger.debug(
         "convert_encrypted_attachment_to_file_content.encrypted_attachment",
         encrypted_attachment,
     )

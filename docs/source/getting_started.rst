@@ -17,7 +17,7 @@ decrypted = sdk.decrypt(FORM_SECRET_KEY, encrypted_payload)
 
 # webhook authentication
 header = "req.header.'x-formsg-signature'"
-sdk.authenticate(FORM_SECRET_KEY, header=HEADER_RESP, uri='your-webhook-uri')
+sdk.authenticate(header=HEADER_RESP, uri='your-webhook-uri')
 
 # decryption with attachments
 decrypted = sdk.decrypt_attachments(FORM_SECRET_KEY, encrypted_payload)

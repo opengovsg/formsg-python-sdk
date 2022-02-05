@@ -116,6 +116,14 @@ class Crypto(object):
             return None
 
     def decrypt_attachments(self, form_secret_key: str, decrypt_params: DecryptParams):
+        """
+        Decrypts an encrypted submission, and also download and decrypt any attachments alongside it.
+        :param form_secret_key Secret key as a base-64 string
+        :param decrypt_params The params containing encrypted content and information.
+        :rtype object: An object containing the decrypted submission, including attachments (if any). Or else returns null if a decryption error decrypting any part of the submission.
+        :raises MissingPublicKeyException if a public key is not provided when instantiating this class and is needed for verifying signed content.
+        """
+
         if "attachmentDownloadUrls" not in decrypt_params:
             raise Exception("`attachmentDownloadUrls` param not passed")
 
@@ -136,14 +144,14 @@ class Crypto(object):
             if response["fieldType"] == "attachment" and response["answer"]:
                 filenames[response["_id"]] = response["answer"]
 
-        field_ids = attachment_records.keys()
-        if not are_attachment_field_ids_valid(field_ids, filenames):
+        field_ids = attachment_records.keys()  # type: ignore
+        if not are_attachment_field_ids_valid(list(field_ids), filenames):
             return None
 
         # possible improvement: make this parallel (eg. with grequests, request_futures)
         try:
             for field_id in field_ids:
-                resp = requests.get(attachment_records[field_id])
+                resp = requests.get(attachment_records[field_id])  # type: ignore
                 data = resp.json()
                 encrypted_file = convert_encrypted_attachment_to_file_content(data)
                 decrypted_file = self.decrypt_file(form_secret_key, encrypted_file)

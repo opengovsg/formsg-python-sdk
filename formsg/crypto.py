@@ -9,26 +9,13 @@ from nacl.public import Box, PrivateKey, PublicKey
 from typing_extensions import TypedDict
 
 from formsg.exceptions import AttachmentDecryptionException, MissingPublicKeyException
-from formsg.schemas.crypto import DecryptParamsSchema
+from formsg.schemas.crypto import DecryptParams
 from formsg.util.crypto import (
     are_attachment_field_ids_valid,
     convert_encrypted_attachment_to_file_content,
     decrypt_content,
     verify_signed_message,
 )
-
-EncryptedAttachmentRecords = Mapping[str, str]
-
-DecryptParams = TypedDict(
-    "DecryptParams",
-    {
-        "encryptedContent": str,
-        "version": str,
-        "verifiedContent": Optional[str],
-        "attachmentDownloadUrls": Optional[EncryptedAttachmentRecords],
-    },
-)
-
 
 logger = logging.getLogger(__name__)
 
@@ -48,17 +35,6 @@ class Crypto(object):
         :returns: The decrypted content if successful. Else, null will be returned.
         :throws: {MissingPublicKeyError} if a public key is not provided when instantiating this class and is needed for verifying signed content.
         """
-        decrypted_bytes = None
-
-        schema = DecryptParamsSchema()
-        try:
-            schema.load(
-                decrypt_params, unknown="INCLUDE"
-            )  # do not raise exception on unknown/unspecified fields
-        except Exception as e:
-            logger.error(e)
-            return None
-
         decrypted_bytes = decrypt_content(
             form_secret_key, decrypt_params["encryptedContent"]
         )

@@ -1,97 +1,13 @@
 import base64
 import json
 import logging
-from typing import Any, Dict, List, Mapping, Optional, Union
+from typing import Any, Dict, List, Mapping, Union
 
 from nacl.exceptions import CryptoError
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.signing import VerifyKey
-from typing_extensions import Literal, TypedDict
 
 logger = logging.getLogger(__name__)
-
-
-"""
-
-// A field type available in FormSG as a string
-export type FieldType =
-  | 'section'
-  | 'radiobutton'
-  | 'dropdown'
-  | 'checkbox'
-  | 'nric'
-  | 'email'
-  | 'table'
-  | 'number'
-  | 'rating'
-  | 'yes_no'
-  | 'decimal'
-  | 'textfield' // Short Text
-  | 'textarea' // Long Text
-  | 'attachment'
-  | 'date'
-  | 'mobile'
-  | 'homeno'
-
-export type DecryptedContent = {
-  responses: FormField[]
-  verified?: Record<string, any>
-}
-
-export type FormField = {
-  _id: string
-  question: string
-  fieldType: FieldType
-  isHeader?: boolean
-  signature?: string
-} & (
-  | { answer: string; answerArray?: never }
-  | { answer?: never; answerArray: string[] | string[][] }
-)
-
-
-"""
-
-FieldType = Union[
-    Literal["section"],
-    Literal["radiobutton"],
-    Literal["dropdown"],
-    Literal["checkbox"],
-    Literal["nric"],
-    Literal["email"],
-    Literal["table"],
-    Literal["number"],
-    Literal["rating"],
-    Literal["yes_no"],
-    Literal["decimal"],
-    Literal["textfield"],  # short text
-    Literal["textarea"],  # long text
-    Literal["attachment"],
-    Literal["date"],
-    Literal["mobile"],
-    Literal["homeno"],
-]
-FormFieldSignature = TypedDict(
-    "FormFieldSignature",
-    {
-        "answer": Optional[str],
-        "answer_array": Optional[Union[List[str], List[List[str]]]],
-    },
-)
-FormField = TypedDict(
-    "FormField",
-    {
-        "_id": str,
-        "question": str,
-        "field_type": FieldType,
-        "is_header": bool,
-        "signature": Optional[FormFieldSignature],
-    },
-)
-DecryptedContent = TypedDict(
-    "DecryptedContent",
-    {"responses": List[FormField], "verified": Optional[Mapping[str, Any]]},
-)
 
 
 def verify_signed_message(msg: bytes, public_key: str) -> Dict[str, Any]:

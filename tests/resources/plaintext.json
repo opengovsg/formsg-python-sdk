@@ -1,0 +1,87 @@
+[
+  {
+    "_id": "5e7479c786eaf2002488a211",
+    "question": "Header",
+    "fieldType": "section",
+    "isHeader": true,
+    "answer": ""
+  },
+  {
+    "_id": "5e7479a086eaf2002488a20e",
+    "question": "Email",
+    "fieldType": "email",
+    "answer": "test@open.gov.sg"
+  },
+  {
+    "_id": "5e771c246b3c5100240368d8",
+    "question": "Mobile Number",
+    "fieldType": "mobile",
+    "answer": "+6598765432"
+  },
+  {
+    "_id": "5e7479a386eaf2002488a20f",
+    "question": "Number",
+    "fieldType": "number",
+    "answer": "123"
+  },
+  {
+    "_id": "5e771c346b3c5100240368da",
+    "question": "Decimal",
+    "fieldType": "decimal",
+    "answer": "0.123"
+  },
+  {
+    "_id": "5e771c516b3c5100240368dc",
+    "question": "Short Text",
+    "fieldType": "textfield",
+    "answer": "Test"
+  },
+  {
+    "_id": "5e771c596b3c5100240368dd",
+    "question": "Long Text",
+    "fieldType": "textarea",
+    "answer": "Long\nText"
+  },
+  {
+    "_id": "5e771c626b3c5100240368de",
+    "question": "Dropdown",
+    "fieldType": "dropdown",
+    "answer": "Option 1"
+  },
+  {
+    "_id": "5e771c666b3c5100240368df",
+    "question": "Yes/No",
+    "fieldType": "yes_no",
+    "answer": "Yes"
+  },
+  {
+    "_id": "5e771c7a6b3c5100240368e0",
+    "question": "Checkbox",
+    "fieldType": "checkbox",
+    "answerArray": ["Option 2"]
+  },
+  {
+    "_id": "5e771c8a6b3c5100240368e1",
+    "question": "Radio",
+    "fieldType": "radiobutton",
+    "answer": "Option 1"
+  },
+  {
+    "_id": "5e771c8d6b3c5100240368e2",
+    "question": "Date",
+    "fieldType": "date",
+    "answer": "22 Mar 2020"
+  },
+  {
+    "_id": "5e771c906b3c5100240368e3",
+    "question": "Rating",
+    "fieldType": "rating",
+    "answer": "5"
+  },
+  {
+    "_id": "5e771c946b3c5100240368e4",
+    "question": "NRIC",
+    "fieldType": "nric",
+    "answer": "S9912345A"
+  }
+]

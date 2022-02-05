@@ -22,7 +22,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.6",
     ],
-    packages=["formsg", "formsg.util"],
+    packages=["formsg", "formsg.util", "formsg.schemas"],
     include_package_data=True,
     install_requires=["PyNaCl>=1.5.0", "requests>=2.27.0"],
     entry_points={},

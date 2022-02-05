@@ -4,16 +4,16 @@ from formsg.util.webhook import has_epoch_expired, is_signature_valid
 
 
 class Webhook(object):
-    def __init__(self, public_key):
+    def __init__(self, public_key: str):
         self.public_key = public_key
 
     def authenticate(self, header: str, uri: str) -> bool:
         """
-        * Injects the webhook public key for authentication
-        * @param header X-FormSG-Signature header
-        * @param uri The endpoint that FormSG is POSTing to
-        * @returns true if the header is verified
-        * @throws {WebhookAuthenticateError} If the signature or uri cannot be verified
+        Injects the webhook public key for authentication
+        :param header: X-FormSG-Signature header
+        :param uri: The endpoint that FormSG is POSTing to
+        :rtype: :class:`bool` true if the header is verified
+        :throws: {WebhookAuthenticateError} If the signature or uri cannot be verified
         """
         signature_header = parse_signature_header(header)
         [signature, epoch, submission_id, form_id] = [

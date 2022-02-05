@@ -1,3 +1,5 @@
+from typing import Optional
+
 from formsg.constants import PUBLIC_KEY_PRODUCTION, PUBLIC_KEY_STAGING
 from formsg.crypto import Crypto, DecryptParams
 from formsg.webhook import Webhook
@@ -16,10 +18,10 @@ class FormSdk(object):
             self.public_key = PUBLIC_KEY_PRODUCTION
 
         self.crypto = Crypto(self.public_key)
+        self.webhook = Webhook(self.public_key)
 
     def authenticate(self, header: str, uri: str) -> bool:
-        webhook = Webhook(self.public_key)
-        return webhook.authenticate(header, uri)
+        return self.webhook.authenticate(header, uri)
 
     def decrypt(self, form_secret_key: str, decrypt_params: DecryptParams):
         return self.crypto.decrypt(form_secret_key, decrypt_params)

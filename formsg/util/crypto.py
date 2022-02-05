@@ -129,8 +129,10 @@ def decrypt_content(
         return None
 
 
-def retrieve_attachment_filenames(decrypted_content: FieldType):
-    return decrypted_content["field_type"] == "attachment" and decrypted_content.answer
+def retrieve_attachment_filenames(decrypted_content: Mapping[str, Any]) -> bool:
+    return (
+        decrypted_content["field_type"] == "attachment" and decrypted_content["answer"]
+    )
 
 
 def are_attachment_field_ids_valid(

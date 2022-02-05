@@ -2,6 +2,7 @@ import base64
 import logging
 import time
 
+from nacl.bindings.crypto_sign import crypto_sign, crypto_sign_BYTES
 from nacl.signing import VerifyKey
 from typing_extensions import TypedDict
 
@@ -50,6 +51,22 @@ def _verify(verify_key: VerifyKey, uri: str, signature: str) -> bytes:
 
 
 def has_epoch_expired(epoch: int, expiry: int = 300000) -> bool:
+    """
+    :param epoch: time in ms
+    :param expiry: time in ms
+    :rtype :class:`bool` if epoch has expired
+    """
     # epoch is in ms, time.time() is in sec
     difference = abs(time.time() * 1000 - epoch)
     return difference > expiry
+
+
+"""
+# `nacl.signing.SigningKey` doesn't allow for a 64 bit salt, so we need to use their lower level API
+# ref https://github.com/pyca/pynacl/issues/419#issuecomment-377520844
+"""
+
+
+def sign(base_string: str, secret_key: str) -> bytes:
+    combined = crypto_sign(base_string.encode("utf-8"), base64.b64decode(secret_key))
+    return base64.b64encode(combined[:crypto_sign_BYTES])

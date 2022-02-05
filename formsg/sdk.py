@@ -7,7 +7,7 @@ from formsg.webhook import Webhook
 
 class FormSdk(object):
     # TODO: type(mode) == Literal
-    def __init__(self, mode: str):
+    def __init__(self, mode: str, webhook_secret_key: Optional[str] = None):
         self.mode = mode
         self.public_key: str
         if self.mode == "STAGING":
@@ -18,7 +18,7 @@ class FormSdk(object):
             self.public_key = PUBLIC_KEY_PRODUCTION
 
         self.crypto = Crypto(self.public_key)
-        self.webhook = Webhook(self.public_key)
+        self.webhook = Webhook(self.public_key, webhook_secret_key)
 
     def authenticate(self, header: str, uri: str) -> bool:
         return self.webhook.authenticate(header, uri)

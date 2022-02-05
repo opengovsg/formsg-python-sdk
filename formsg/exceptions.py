@@ -8,3 +8,7 @@ class AttachmentDecryptionException(Exception):
 
 class MissingPublicKeyException(Exception):
     pass
+
+
+class MissingSecretKeyException(Exception):
+    pass

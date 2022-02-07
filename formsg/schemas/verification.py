@@ -14,3 +14,7 @@ VerificationAuthenticateOptions = TypedDict(
 VerificationSignatureSchema = TypedDict(
     "VerificationSignatureSchema", {"v": str, "t": int, "s": str, "f": str}
 )
+
+HeaderSignatureSchema = TypedDict(
+    "HeaderSignatureSchema", {"v1": str, "t": int, "s": str, "f": str}
+)

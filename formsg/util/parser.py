@@ -1,6 +1,9 @@
 from typing import Dict, Union, cast
 
-from formsg.schemas.verification import VerificationSignatureSchema
+from formsg.schemas.verification import (
+    HeaderSignatureSchema,
+    VerificationSignatureSchema,
+)
 
 
 def _extract_key_values(s: str) -> dict:
@@ -12,8 +15,9 @@ def _extract_key_values(s: str) -> dict:
     return d
 
 
-def parse_signature_header(header: str):
-    parsed_signature = _extract_key_values(header)
+def parse_signature_header(header: str) -> HeaderSignatureSchema:
+    parsed_signature = cast(HeaderSignatureSchema, {})
+    parsed_signature = _extract_key_values(header)  # type: ignore
     parsed_signature["t"] = int(parsed_signature["t"])
     return parsed_signature
 

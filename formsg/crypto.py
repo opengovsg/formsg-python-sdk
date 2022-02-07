@@ -1,14 +1,19 @@
 import base64
 import json
 import logging
-from typing import Union
+from typing import Union, cast
 
 import requests
 from nacl.exceptions import CryptoError
 from nacl.public import Box, PrivateKey, PublicKey
 
 from formsg.exceptions import AttachmentDecryptionException, MissingPublicKeyException
-from formsg.schemas.crypto import DecryptParams, DecryptedContent, DecryptedContentAndAttachments
+from formsg.schemas.crypto import (
+    DecryptedContent,
+    DecryptedContentAndAttachments,
+    DecryptedFile,
+    DecryptParams,
+)
 from formsg.util.crypto import (
     are_attachment_field_ids_valid,
     convert_encrypted_attachment_to_file_content,
@@ -23,7 +28,9 @@ class Crypto(object):
     def __init__(self, signing_public_key: str):
         self.signing_public_key = signing_public_key
 
-    def decrypt(self, form_secret_key: str, decrypt_params: DecryptParams) -> DecryptedContent:
+    def decrypt(
+        self, form_secret_key: str, decrypt_params: DecryptParams
+    ) -> Union[DecryptedContent, None]:
         """
         Decrypts an encrypted submission and returns it.
         :param: form_secret_key The base-64 secret key of the form to decrypt with.
@@ -45,8 +52,9 @@ class Crypto(object):
             raise Exception("Failed to decrypt content")
 
         decrypted_object = json.loads(decrypted_bytes.decode("utf-8"))
-        returned_object = {}
-        returned_object["responses"] = decrypted_object
+        returned_object: DecryptedContent = {
+            "responses": decrypted_object,
+        }
 
         if "verifiedContent" in decrypt_params:
             decrypted_verified_object = self._decrypt_verified_content(
@@ -84,7 +92,9 @@ class Crypto(object):
             logger.error("Error decrypting file")
             return None
 
-    def decrypt_attachments(self, form_secret_key: str, decrypt_params: DecryptParams) -> DecryptedContentAndAttachments:
+    def decrypt_attachments(
+        self, form_secret_key: str, decrypt_params: DecryptParams
+    ) -> Union[DecryptedContentAndAttachments, None]:
         """
         Decrypts an encrypted submission, and also download and decrypt any attachments alongside it.
         :param form_secret_key Secret key as a base-64 string
@@ -93,30 +103,21 @@ class Crypto(object):
         :raises MissingPublicKeyException if a public key is not provided when instantiating this class and is needed for verifying signed content.
         """
 
-        returned_object = {}
-
         if "attachmentDownloadUrls" not in decrypt_params:
             raise Exception("`attachmentDownloadUrls` param not passed")
 
         attachment_records = decrypt_params.get("attachmentDownloadUrls", {})
-
-        decrypted_content_bytes = decrypt_content(
-            form_secret_key, decrypt_params["encryptedContent"]
-        )
-        if not decrypted_content_bytes:
+        decrypted_content = self.decrypt(form_secret_key, decrypt_params)
+        if not decrypted_content:
             return None
-        decrypted_content = json.loads(decrypted_content_bytes.decode("utf-8"))
-        returned_object["content"] = decrypted_content
-
-        if "verifiedContent" in decrypt_params:
-            decrypted_verified_object = self._decrypt_verified_content(
-                form_secret_key, decrypt_params
-            )
-            returned_object["verified"] = decrypted_verified_object
+        returned_object: DecryptedContentAndAttachments = {
+            "content": decrypted_content,
+            "attachments": {},
+        }
 
         decrypted_records = {}
         filenames = {}
-        for response in decrypted_content:
+        for response in decrypted_content["responses"]:
             if response["fieldType"] == "attachment" and response["answer"]:
                 filenames[response["_id"]] = response["answer"]
 
@@ -133,10 +134,11 @@ class Crypto(object):
                 decrypted_file = self.decrypt_file(form_secret_key, encrypted_file)
                 if not decrypted_file:
                     raise AttachmentDecryptionException()
-                decrypted_records[field_id] = {
+                decrypted_record: DecryptedFile = {
                     "filename": filenames[field_id],
                     "content": decrypted_file,
                 }
+                decrypted_records[field_id] = decrypted_record
         except AttachmentDecryptionException:
             raise
         except Exception as e:

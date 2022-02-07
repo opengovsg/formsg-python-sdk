@@ -1,6 +1,6 @@
 from typing import Any, List, Mapping, Optional, Union
 
-from typing_extensions import Literal, TypedDict
+from typing_extensions import Literal, NotRequired, TypedDict
 
 FieldType = Union[
     Literal["section"],
@@ -21,26 +21,22 @@ FieldType = Union[
     Literal["mobile"],
     Literal["homeno"],
 ]
-FormFieldSignature = TypedDict(
-    "FormFieldSignature",
-    {
-        "answer": Optional[str],
-        "answer_array": Optional[Union[List[str], List[List[str]]]],
-    },
-)
+
 FormField = TypedDict(
     "FormField",
     {
         "_id": str,
         "question": str,
-        "field_type": FieldType,
-        "is_header": bool,
-        "signature": Optional[FormFieldSignature],
+        "fieldType": FieldType,
+        "isHeader": bool,
+        "signature": Optional[str],
+        "answer": Optional[str],
+        "answerArray": Optional[Union[List[str], List[List[str]]]],
     },
 )
 DecryptedContent = TypedDict(
     "DecryptedContent",
-    {"responses": List[FormField], "verified": Optional[Mapping[str, Any]]},
+    {"responses": List[FormField], "verified": NotRequired[Mapping[str, Any]]},
 )
 
 DecryptedFile = TypedDict("DecryptedFile", {"filename": str, "content": bytes})
@@ -52,6 +48,12 @@ DecryptedContentAndAttachments = TypedDict(
 
 
 EncryptedAttachmentRecords = Mapping[str, str]
+
+EncryptedFileContent = TypedDict(
+    "EncryptedFileContent",
+    {"submission_public_key": str, "nonce": str, "binary": bytes},
+)
+
 
 DecryptParams = TypedDict(
     "DecryptParams",

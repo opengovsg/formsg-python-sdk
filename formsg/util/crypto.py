@@ -7,6 +7,8 @@ from nacl.exceptions import CryptoError
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.signing import VerifyKey
 
+from formsg.schemas.crypto import EncryptedFileContent
+
 logger = logging.getLogger(__name__)
 
 
@@ -57,7 +59,9 @@ def are_attachment_field_ids_valid(
     return all(map(lambda field_id: field_id in filenames, field_ids))
 
 
-def convert_encrypted_attachment_to_file_content(encrypted_attachment):
+def convert_encrypted_attachment_to_file_content(
+    encrypted_attachment,
+) -> EncryptedFileContent:
     logger.debug(
         "convert_encrypted_attachment_to_file_content.encrypted_attachment",
         encrypted_attachment,

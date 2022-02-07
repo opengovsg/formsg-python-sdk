@@ -94,11 +94,11 @@ class Crypto(object):
         :raises MissingPublicKeyException if a public key is not provided when instantiating this class and is needed for verifying signed content.
         """
 
+        returned_object = {}
+
         if "attachmentDownloadUrls" not in decrypt_params:
             raise Exception("`attachmentDownloadUrls` param not passed")
 
-        # const attachmentRecords: EncryptedAttachmentRecords =
-        # decryptParams.attachmentDownloadUrls ?? {}
         attachment_records = decrypt_params.get("attachmentDownloadUrls", {})
 
         decrypted_content_bytes = decrypt_content(
@@ -107,6 +107,13 @@ class Crypto(object):
         if not decrypted_content_bytes:
             return None
         decrypted_content = json.loads(decrypted_content_bytes.decode("utf-8"))
+        returned_object["content"] = decrypted_content
+
+        if "verifiedContent" in decrypt_params:
+            decrypted_verified_object = self._decrypt_verified_content(
+                form_secret_key, decrypt_params
+            )
+            returned_object["verified"] = decrypted_verified_object
 
         decrypted_records = {}
         filenames = {}
@@ -136,8 +143,8 @@ class Crypto(object):
         except Exception as e:
             logger.error(e)
             return None
-
-        return {"content": decrypted_content, "attachments": decrypted_records}
+        returned_object["attachments"] = decrypted_records
+        return returned_object
 
     def _decrypt_verified_content(
         self, form_secret_key: str, decrypt_params: DecryptParams

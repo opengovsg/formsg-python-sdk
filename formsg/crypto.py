@@ -50,18 +50,8 @@ class Crypto(object):
         returned_object["responses"] = decrypted_object
 
         if "verifiedContent" in decrypt_params:
-            if not self.signing_public_key:
-                raise MissingPublicKeyException(
-                    "Public signing key must be provided when instantiating the Crypto class in order to verify verified content"
-                )
-            decrypted_verified_content = decrypt_content(
-                form_secret_key, decrypt_params["verifiedContent"]  # type: ignore
-            )
-            if not decrypted_verified_content:
-                raise Exception("Failed to decrypt verified content")
-
-            decrypted_verified_object = verify_signed_message(
-                decrypted_verified_content, self.signing_public_key
+            decrypted_verified_object = self._decrypt_verified_content(
+                form_secret_key, decrypt_params
             )
             returned_object["verified"] = decrypted_verified_object
 
@@ -148,3 +138,20 @@ class Crypto(object):
             return None
 
         return {"content": decrypted_content, "attachments": decrypted_records}
+
+    def _decrypt_verified_content(
+        self, form_secret_key: str, decrypt_params: DecryptParams
+    ):
+        if not self.signing_public_key:
+            raise MissingPublicKeyException(
+                "Public signing key must be provided when instantiating the Crypto class in order to verify verified content"
+            )
+        decrypted_verified_content = decrypt_content(
+            form_secret_key, decrypt_params["verifiedContent"]  # type: ignore
+        )
+        if not decrypted_verified_content:
+            raise Exception("Failed to decrypt verified content")
+
+        return verify_signed_message(
+            decrypted_verified_content, self.signing_public_key
+        )

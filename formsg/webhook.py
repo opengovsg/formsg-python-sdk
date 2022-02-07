@@ -68,7 +68,7 @@ class Webhook(object):
 
         parsed_url = urllib.parse.urlparse(uri).geturl()
         base_string = f"{parsed_url}.{submission_id}.{form_id}.{epoch}"
-        return sign(base_string, self.secret_key)
+        return sign(base_string, self.secret_key).decode("utf-8")
 
     def construct_header(self, params) -> str:
         """

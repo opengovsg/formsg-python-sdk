@@ -1,6 +1,7 @@
 import base64
 import logging
 import time
+import urllib
 
 from nacl.bindings.crypto_sign import crypto_sign, crypto_sign_BYTES
 from nacl.signing import VerifyKey
@@ -36,7 +37,8 @@ def is_signature_valid(
     if not epoch or not signature or not submission_id or not form_id:
         raise WebhookAuthenticateException("X-FormSG-Signature header is invalid")
 
-    base_string = f"{uri}.{submission_id}.{form_id}.{epoch}"
+    parsed_url = urllib.parse.urlparse(uri).geturl()
+    base_string = f"{parsed_url}.{submission_id}.{form_id}.{epoch}"
     v_key = VerifyKey(base64.b64decode(public_key))
     try:
         _verify(v_key, base_string, signature)

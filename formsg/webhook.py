@@ -17,7 +17,7 @@ class Webhook(object):
         :param header: X-FormSG-Signature header
         :param uri: The endpoint that FormSG is POSTing to
         :rtype: :class:`bool` true if the header is verified
-        :throws: {WebhookAuthenticateError} If the signature or uri cannot be verified
+        :raises WebhookAuthenticateException: If the signature or uri cannot be verified
         """
         signature_header = parse_signature_header(header)
         [signature, epoch, submission_id, form_id] = [
@@ -41,7 +41,7 @@ class Webhook(object):
 
         return True
 
-    def generate_signature(self, params):
+    def generate_signature(self, params) -> str:
         """
         Generates a signature based on the URI, submission ID and epoch timestamp.
         :param params The parameters needed to generate the signature

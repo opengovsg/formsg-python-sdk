@@ -1,15 +1,14 @@
 import base64
 import json
 import logging
-from typing import Mapping, Optional, Union
+from typing import Union
 
 import requests
 from nacl.exceptions import CryptoError
 from nacl.public import Box, PrivateKey, PublicKey
-from typing_extensions import TypedDict
 
 from formsg.exceptions import AttachmentDecryptionException, MissingPublicKeyException
-from formsg.schemas.crypto import DecryptParams
+from formsg.schemas.crypto import DecryptParams, DecryptedContent, DecryptedContentAndAttachments
 from formsg.util.crypto import (
     are_attachment_field_ids_valid,
     convert_encrypted_attachment_to_file_content,
@@ -24,7 +23,7 @@ class Crypto(object):
     def __init__(self, signing_public_key: str):
         self.signing_public_key = signing_public_key
 
-    def decrypt(self, form_secret_key: str, decrypt_params: DecryptParams):
+    def decrypt(self, form_secret_key: str, decrypt_params: DecryptParams) -> DecryptedContent:
         """
         Decrypts an encrypted submission and returns it.
         :param: form_secret_key The base-64 secret key of the form to decrypt with.
@@ -85,7 +84,7 @@ class Crypto(object):
             logger.error("Error decrypting file")
             return None
 
-    def decrypt_attachments(self, form_secret_key: str, decrypt_params: DecryptParams):
+    def decrypt_attachments(self, form_secret_key: str, decrypt_params: DecryptParams) -> DecryptedContentAndAttachments:
         """
         Decrypts an encrypted submission, and also download and decrypt any attachments alongside it.
         :param form_secret_key Secret key as a base-64 string

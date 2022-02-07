@@ -43,6 +43,13 @@ DecryptedContent = TypedDict(
     {"responses": List[FormField], "verified": Optional[Mapping[str, Any]]},
 )
 
+DecryptedFile = TypedDict("DecryptedFile", {"filename": str, "content": bytes})
+DecryptedAttachments = Mapping[str, DecryptedFile]
+DecryptedContentAndAttachments = TypedDict(
+    "DecryptedContentAndAttachments",
+    {"content": DecryptedContent, "attachments": DecryptedAttachments},
+)
+
 
 EncryptedAttachmentRecords = Mapping[str, str]
 

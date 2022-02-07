@@ -33,8 +33,12 @@ class Crypto(object):
         :param: decrypt_params.version The version of the payload. Used to determine the decryption process to decrypt the content with.
         :param: decrypt_params.verifiedContent Optional. The encrypted and signed verified content. If given, the signingPublicKey will be used to attempt to open the signed message.
         :returns: The decrypted content if successful. Else, null will be returned.
-        :throws: {MissingPublicKeyError} if a public key is not provided when instantiating this class and is needed for verifying signed content.
+        :raises MissingPublicKeyException: if a public key is not provided when instantiating this class and is needed for verifying signed content.
         """
+        if "encryptedContent" not in decrypt_params:
+            logger.error("`encryptedContent` not provided")
+            return None
+
         decrypted_bytes = decrypt_content(
             form_secret_key, decrypt_params["encryptedContent"]
         )

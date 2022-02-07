@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "formsg-python-sdk"
-version = "0.1.0"
+version = "0.1.5"
 description = "Python SDK for FormSG"
 authors = ["Chin Ying <chinying@open.gov.sg>"]
 license = "MIT"
+packages = [
+    { include = "formsg" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.6.2"

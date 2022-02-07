@@ -35,6 +35,10 @@ class Crypto(object):
         :returns: The decrypted content if successful. Else, null will be returned.
         :throws: {MissingPublicKeyError} if a public key is not provided when instantiating this class and is needed for verifying signed content.
         """
+        if "encryptedContent" not in decrypt_params:
+            logger.error("`encryptedContent` not provided")
+            return None
+
         decrypted_bytes = decrypt_content(
             form_secret_key, decrypt_params["encryptedContent"]
         )

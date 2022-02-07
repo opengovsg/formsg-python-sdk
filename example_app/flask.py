@@ -15,6 +15,6 @@ def webhook_route():
     uri = "this endpoint's uri"
     sdk = formsg.FormSdk("PRODUCTION")
     sdk.authenticate(request.headers["X-FormSG-Signature"], uri)
-    responses = sdk.decrypt(FORM_SECRET_KEY, posted_data)  # FIXME: check
+    responses = sdk.decrypt(FORM_SECRET_KEY, posted_data['data'])
     print(responses)
     return Response(json.dumps({"message": "ok"}), 202)

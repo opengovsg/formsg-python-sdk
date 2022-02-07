@@ -2,7 +2,6 @@ import datetime
 
 import pytest
 from formsg.webhook import Webhook
-from tests.test_crypto import PUBLIC_KEY, SECRET_KEY
 
 PUBLIC_KEY = "KUY1XT30ar+XreVjsS1w/c3EpDs2oASbF6G3evvaUJM="
 SECRET_KEY = "/u+LP57Ib9y5Ytpud56FzuitSC9O6lJ4EOLOFHpsHlYpRjVdPfRqv5et5WOxLXD9zcSkOzagBJsXobd6+9pQkw=="
@@ -30,36 +29,16 @@ class TestWebhooks:
         epoch = 1583136171649
         signature = self.generate_test_signature(epoch)
         assert (
-            signature.decode("utf-8")
+            signature
             == "KMirkrGJLPqu+Na+gdZLUxl9ZDgf2PnNGPnSoG1FuTMRUTiQ6o0jB/GTj1XFjn2s9JtsL5GiCmYROpjJhDyxCw=="
         )
 
-    """
-    it('should accept signatures generated within 5 minutes', () => {
-        const epoch = Date.now() - 5 * 60 * 1000 + 1000 // 4min 59s into the past
-        const signature = webhooks.generateSignature({
-        uri,
-        submissionId,
-        formId,
-        epoch,
-        }) as string
-        const header = webhooks.constructHeader({
-        epoch,
-        submissionId,
-        formId,
-        signature,
-        }) as string
-
-        expect(() => webhooks.authenticate(header, uri)).not.toThrow()
-    })
-    """
-
-    @pytest.mark.skip
     def test_accept_signature_within_5_min(self):
         sometime_ago = datetime.datetime.now() - datetime.timedelta(
             minutes=4, seconds=59
         )
-        epoch = int(sometime_ago.timestamp())
+        # .timestamp() returns seconds
+        epoch = int(sometime_ago.timestamp() * 1000)
         signature = self.generate_test_signature(epoch)
         header = self.webhooks().construct_header(
             {

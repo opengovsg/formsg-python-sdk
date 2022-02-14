@@ -104,7 +104,8 @@ class Crypto(object):
         """
 
         if "attachmentDownloadUrls" not in decrypt_params:
-            raise Exception("`attachmentDownloadUrls` param not passed")
+            logger.error("`attachmentDownloadUrls` param not passed")
+            return None
 
         attachment_records = decrypt_params.get("attachmentDownloadUrls", {})
         decrypted_content = self.decrypt(form_secret_key, decrypt_params)

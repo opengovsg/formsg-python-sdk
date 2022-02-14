@@ -18,4 +18,4 @@ class FormSdk(object):
             self.public_key = PUBLIC_KEY_PRODUCTION
 
         self.crypto = Crypto(self.public_key)
-        self.webhook = Webhook(self.public_key, webhook_secret_key)
+        self.webhooks = Webhook(self.public_key, webhook_secret_key)

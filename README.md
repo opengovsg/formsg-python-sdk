@@ -1,5 +1,6 @@
 # formsg-python-sdk
-
+## Requirements
+Python 3.6+
 ## Quickstart
 `pip install formsg-python-sdk`
 
@@ -13,12 +14,14 @@ import formsg
 sdk = formsg.FormSdk("PRODUCTION")  # accepts STAGING or PRODUCTION
 
 # decryption
-decrypted = sdk.decrypt(FORM_SECRET_KEY, encrypted_payload)
+# if `verifiedContent` exists as a key in `encrypted_payload`, the return object will include a verified key
+decrypted = sdk.crypto.decrypt(FORM_SECRET_KEY, encrypted_payload)
 
 # webhook authentication
-header = "req.header.'x-formsg-signature'"
-sdk.authenticate(header=HEADER_RESP, uri='your-webhook-uri')
+HEADER_RESP = "req.header.'x-formsg-signature'"
+sdk.webhooks.authenticate(header=HEADER_RESP, uri='your-webhook-uri')
 
 # decryption with attachments
-decrypted = sdk.decrypt_attachments(FORM_SECRET_KEY, encrypted_payload)
+decrypted = sdk.crypto.decrypt_attachments(FORM_SECRET_KEY, encrypted_payload)
 ```
+

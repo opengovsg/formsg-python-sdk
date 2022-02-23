@@ -20,6 +20,7 @@ from formsg.util.crypto import (
     decrypt_content,
     verify_signed_message,
 )
+from formsg.util.validate import determine_is_form_fields
 
 logger = logging.getLogger(__name__)
 
@@ -41,28 +42,38 @@ class Crypto(object):
         :returns: The decrypted content if successful. Else, null will be returned.
         :raises MissingPublicKeyException: if a public key is not provided when instantiating this class and is needed for verifying signed content.
         """
-        if "encryptedContent" not in decrypt_params:
-            logger.error("`encryptedContent` not provided")
-            return None
+        try:
+            if "encryptedContent" not in decrypt_params:
+                logger.error("`encryptedContent` not provided")
+                return None
 
-        decrypted_bytes = decrypt_content(
-            form_secret_key, decrypt_params["encryptedContent"]
-        )
-        if not decrypted_bytes:
-            raise Exception("Failed to decrypt content")
-
-        decrypted_object = json.loads(decrypted_bytes.decode("utf-8"))
-        returned_object: DecryptedContent = {
-            "responses": decrypted_object,
-        }
-
-        if "verifiedContent" in decrypt_params:
-            decrypted_verified_object = self._decrypt_verified_content(
-                form_secret_key, decrypt_params
+            decrypted_bytes = decrypt_content(
+                form_secret_key, decrypt_params["encryptedContent"]
             )
-            returned_object["verified"] = decrypted_verified_object
+            if not decrypted_bytes:
+                raise Exception("Failed to decrypt content")
 
-        return returned_object
+            decrypted_object = json.loads(decrypted_bytes.decode("utf-8"))
+            if not determine_is_form_fields(decrypted_object):
+                print("here")
+                raise Exception("Decrypted object does not fit expected shape")
+
+            returned_object: DecryptedContent = {
+                "responses": decrypted_object,
+            }
+
+            if "verifiedContent" in decrypt_params:
+                decrypted_verified_object = self._decrypt_verified_content(
+                    form_secret_key, decrypt_params
+                )
+                returned_object["verified"] = decrypted_verified_object
+
+            return returned_object
+        except MissingPublicKeyException as e:
+            logger.error(e)
+            raise e
+        except:
+            return None
 
     def decrypt_file(
         self, form_secret_key: str, encrypted_file_content

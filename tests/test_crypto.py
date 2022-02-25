@@ -32,7 +32,18 @@ def test_decryption():
         form_secret_key="H7B0nKJ+E7+naSkQApxGayz1y/lZe4thta4iPp1B+Ns=",
         decrypt_params={"encryptedContent": cipertext, "version": 1},
     )
-    # assert str(result['responses']).replace(" ","") == plain_text
     assert json.dumps(result["responses"], sort_keys=True) == json.dumps(
         plain_text, sort_keys=True
     )
+
+
+def test_decrypt_malformed_content():
+    crypto = Crypto("KUY1XT30ar+XreVjsS1w/c3EpDs2oASbF6G3evvaUJM=")
+    result = crypto.decrypt(
+        form_secret_key="H7B0nKJ+E7+naSkQApxGayz1y/lZe4thta4iPp1B+Ns=",
+        decrypt_params={
+            "encryptedContent": "string, does not match shape of typical formsg response",
+            "version": 1,
+        },
+    )
+    assert result is None

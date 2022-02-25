@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="formsg-python-sdk",
-    version="0.1.6",
+    version="0.1.12",
     description="Python SDK for Forms",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -24,6 +24,10 @@ setup(
     ],
     packages=["formsg", "formsg.util", "formsg.schemas"],
     include_package_data=True,
-    install_requires=["PyNaCl>=1.5.0", "requests>=2.27.0"],
+    install_requires=[
+        "PyNaCl>=1.5.0",
+        "requests>=2.27.0",
+        "typing_extensions>=4.0.0; python_version < '3.11'",
+    ],
     entry_points={},
 )

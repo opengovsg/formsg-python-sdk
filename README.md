@@ -3,26 +3,31 @@
 Python 3.6+
 ## Quickstart
 `pip install formsg-python-sdk`
-```
+```python
+import formsg
+# accepts STAGING or PRODUCTION, determines whether to use staging or production public signing keys
+sdk = formsg.FormSdk("PRODUCTION")
+
+# Your form's secret key downloaded from FormSG upon form creation
 FORM_SECRET_KEY = "YOUR-SECRET-KEY"
 
+# This is where your domain is hosted, and should match
+# the URI supplied to FormSG in the form dashboard
+YOUR_WEBHOOK_URI = "your-webhoook-uri"
 
-import formsg
-sdk = formsg.FormSdk("PRODUCTION")  # accepts STAGING or PRODUCTION
-
-# decryption
+# decryption without attachments
 # if `verifiedContent` exists as a key in `encrypted_payload`, the return object will include a verified key
 decrypted = sdk.crypto.decrypt(FORM_SECRET_KEY, encrypted_payload)
 
 # webhook authentication
 HEADER_RESP = "req.header.'x-formsg-signature'"
-sdk.webhooks.authenticate(header=HEADER_RESP, uri='your-webhook-uri')
+sdk.webhooks.authenticate(header=HEADER_RESP, uri=YOUR_WEBHOOK_URI)
 
 # decryption with attachments
-decrypted = sdk.crypto.decrypt_attachments(FORM_SECRET_KEY, encrypted_payload)
+decrypted_with_attachments = sdk.crypto.decrypt_attachments(FORM_SECRET_KEY, encrypted_payload)
 ```
 
-Refer to the [example app](https://github.com/opengovsg/formsg-python-sdk/blob/develop/example_app/flask.py) if you're running a flask server
+Refer to the [example app](https://github.com/opengovsg/formsg-python-sdk/blob/develop/example_app/flask.py) if you're running a flask server.
 
 ## End-to-end Encryption
 ### Format of Submission Response

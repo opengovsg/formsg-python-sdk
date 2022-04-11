@@ -1,4 +1,8 @@
 # formsg-python-sdk
+This is the Python version of the [Form Javascript SDK](https://github.com/opengovsg/formsg-javascript-sdk/), which provides utility functions for verifying FormSG webhooks, as well as decrypting form submissions.
+
+Note that this library is still in beta. 
+
 ## Requirements
 Python 3.6+
 ## Quickstart

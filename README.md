@@ -3,6 +3,10 @@ This is the Python version of the [Form Javascript SDK](https://github.com/openg
 
 Note that this library is still in beta. 
 
+Not using Python? Check out our sister SDKs:
+- [formsg-javascript-sdk](https://github.com/opengovsg/formsg-javascript-sdk)
+- [formsg-ruby-sdk](https://github.com/opengovsg/formsg-ruby-sdk)
+
 ## Requirements
 Python 3.6+
 ## Quickstart
